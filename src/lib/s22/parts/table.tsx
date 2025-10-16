@@ -15,6 +15,7 @@ type TableProps = {
   repeatHeader?: boolean; // repeat the table header on each page
   headerHeight?: number; // spacer height to avoid overlap when header is fixed
   autoHeaderSpacer?: boolean; // compute spacer automatically when headerHeight not provided
+  breakAfterRows?: number | number[]; // force page break after N rows (or multiple points)
 };
 
 export const Table: React.FC<TableProps> = ({
@@ -27,6 +28,7 @@ export const Table: React.FC<TableProps> = ({
   repeatHeader = true,
   headerHeight,
   autoHeaderSpacer = true,
+  breakAfterRows,
 }) => {
   const inferredColumns: Column[] = React.useMemo(() => {
     if (columns && columns.length) return columns;
@@ -36,7 +38,9 @@ export const Table: React.FC<TableProps> = ({
 
   const colWidth = 100 / Math.max(1, inferredColumns.length);
   const padding = compact ? 4 : 8;
-  const spacer = headerHeight ?? (autoHeaderSpacer ? padding * 2 + 10 + 6 : 24);
+  // Spacer pushes rows below the fixed header when repeatHeader=true
+  // Estimate = top padding + bottom padding + font size + small border allowance
+  const spacer = headerHeight ?? (autoHeaderSpacer ? padding * 2 + 6 : 10);
 
   if (!data || data.length === 0) {
     return (
@@ -53,8 +57,8 @@ export const Table: React.FC<TableProps> = ({
 
       {/* Table container that can break across pages */}
       <View style={styles.tableContainer} wrap={allowBreak ? undefined : (false as any)}>
-        {/* Header */}
-        <View style={styles.headerRow} wrap={false}>
+        {/* Header (fixed to repeat on page breaks when enabled) */}
+        <View style={styles.headerRow} wrap={false} {...(repeatHeader ? { fixed: true as any } : {})}>
           {inferredColumns.map((col, idx) => (
             <View
               key={col.key || idx}
@@ -64,20 +68,32 @@ export const Table: React.FC<TableProps> = ({
             </View>
           ))}
         </View>
+        {repeatHeader ? <View style={{ height: spacer, marginBottom: -2 }} /> : null}
 
         {/* Rows */}
-        {data.map((row, rIdx) => (
-          <View key={rIdx} style={styles.tr} wrap={allowBreak ? undefined : (false as any)}>
-            {inferredColumns.map((col, cIdx) => (
-              <View
-                key={cIdx}
-                style={[styles.td, { width: `${col.width ?? colWidth}%`, padding }]}
-              >
-                <Text style={styles.tdText}>{getCellValue(row, col.key)}</Text>
+        {data.map((row, rIdx) => {
+          const breakPoints = Array.isArray(breakAfterRows)
+            ? breakAfterRows
+            : typeof breakAfterRows === 'number'
+              ? [breakAfterRows]
+              : [];
+          const shouldBreakHere = breakPoints.includes(rIdx + 1);
+          return (
+            <React.Fragment key={rIdx}>
+              <View style={styles.tr} wrap={allowBreak ? undefined : (false as any)}>
+                {inferredColumns.map((col, cIdx) => (
+                  <View
+                    key={cIdx}
+                    style={[styles.td, { width: `${col.width ?? colWidth}%`, padding }]}
+                  >
+                    <Text style={styles.tdText}>{getCellValue(row, col.key)}</Text>
+                  </View>
+                ))}
               </View>
-            ))}
-          </View>
-        ))}
+              {allowBreak && shouldBreakHere ? <View break /> : null}
+            </React.Fragment>
+          );
+        })}
       </View>
     </View>
   );

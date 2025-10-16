@@ -6,23 +6,30 @@ import { PdfPreviewer, PrintablePdf, Header, Logo, Line, Body, Div, Row, Grid, T
 export default function ReportsPdfPreview() {
   // Minimal static staff-like data for preview
   const staffSummary = [
-    { label: "Event", value: "Vijay Antony Live - Chennai" },
-    { label: "City", value: "Chennai" },
     { label: "Date", value: "December 6, 2024" },
+    { label: "Country", value: "India" },
+    { label: "State", value: "Karnataka" },
+    { label: "City", value: "Chennai" },
+    { label: "Venue", value: "Sir Mutha Venkatasubba Rao Concert Hall" },
+    { label: "Event Category", value: "Music Concert" },
     { label: "Allocated Budget", value: "10000" },
-    { label: "Balance", value: "4700" },
     { label: "Paid", value: "15300" },
+    { label: "Total Spent", value: "5300" },
+    { label: "Balance", value: "4700" },
+    { label: "Due", value: "0" },
+    { label: "Budget Utilized", value: "53.0" },
+    { label: "Remaining Budget", value: "46.99" },
   ];
 
   return (
     <div style={{ height: "100vh", width: "100%" }}>
       <PdfPreviewer height="100vh">
         <PrintablePdf layout="1">
-          <Header forAllPage>
+          <Header>
             <Logo src="/s22_logo.png" fallback="S22" />
             <Line />
           </Header>
-          <Body>
+          <Body reserveBottom={40}>
             <Div>
               {/* Staff report summary grid */}
               <Row>
@@ -72,6 +79,7 @@ export default function ReportsPdfPreview() {
                     showTitle
                     allowBreak
                     repeatHeader
+                    breakAfterRows={4}
                     data={[
                       { sno: 1, item: "Test", quantity: 100, estimation: "$ 3,000", actualCost: "$ 2,500", difference: "$ 500", paid: "$ 3,000", due: "$ 0", profit: "$ 500" },
                       { sno: 2, item: "Test", quantity: 100, estimation: "$ 3,000", actualCost: "$ 2,500", difference: "$ 500", paid: "$ 3,000", due: "$ 0", profit: "$ 500" },
@@ -93,6 +101,7 @@ export default function ReportsPdfPreview() {
                     showTitle
                     allowBreak
                     repeatHeader
+                    breakAfterRows={4}
                     data={[
                       { sno: 1, item: "Venue", quantity: 2, estimation: "$ 5,000", actualCost: "$ 4,600", difference: "$ 400", paid: "$ 4,600", due: "$ 0", profit: "$ 400" },
                       { sno: 2, item: "Sound", quantity: 1, estimation: "$ 2,000", actualCost: "$ 1,900", difference: "$ 100", paid: "$ 1,900", due: "$ 0", profit: "$ 100" },
@@ -118,7 +127,7 @@ export default function ReportsPdfPreview() {
               </Row>
             </Div>
           </Body>
-          <Footer forAllPage pageCounter brandname="S22" />
+          <Footer forAllPage pageCounter brandname="" />
         </PrintablePdf>
       </PdfPreviewer>
     </div>

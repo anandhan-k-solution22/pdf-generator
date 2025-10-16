@@ -18,7 +18,7 @@ export const Footer: React.FC<FooterProps> = ({
     <View style={styles.footer} {...(forAllPage ? { fixed: true } : {})}>
       {brandname && <Text>{brandname}</Text>}
       {pageCounter && (
-        <Text
+        <Text style={styles.pageCounterText}
           render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
         />
       )}
@@ -34,5 +34,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     fontSize: 10,
+  },
+  pageCounterText: {
+    fontSize: 10,
+    color: "#6B7280",
+    textAlign: "center",
+    width: "100%",
   },
 });
