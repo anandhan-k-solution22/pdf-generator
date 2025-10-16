@@ -3,19 +3,20 @@
 import React, { ReactNode } from "react";
 import { View, StyleSheet } from "@react-pdf/renderer";
 
-export const Body: React.FC<{ children: ReactNode }> = ({ children }) => {
-  return <View style={styles.body}>{children}</View>;
+type BodyProps = {
+  children: ReactNode;
+  reserveTop?: number; // px reserved for header
+  reserveBottom?: number; // px reserved for footer
+};
+
+export const Body: React.FC<BodyProps> = ({ children, reserveTop = 0, reserveBottom = 40 }) => {
+  return <View style={[styles.body, { paddingTop: reserveTop, paddingBottom: reserveBottom }]}>{children}</View>;
 };
 
 const styles = StyleSheet.create({
     body: {
-      position: "absolute",
-      top: "10%",
-      height: "80%", // middle 80%
-      left: 0,
-      right: 0,
+      flex: 1,
       paddingVertical: 6,
-      overflow: "hidden",
     },
     center: {
       justifyContent: "center", // vertically center content

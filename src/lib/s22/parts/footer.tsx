@@ -28,11 +28,6 @@ export const Footer: React.FC<FooterProps> = ({
 
 const styles = StyleSheet.create({
   footer: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: "10%", // bottom 10% of the page
     width: "100%",
     paddingVertical: 8,
     flexDirection: "row",

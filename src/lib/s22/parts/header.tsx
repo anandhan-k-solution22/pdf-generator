@@ -19,13 +19,7 @@ export const Header: React.FC<HeaderProps> = ({ children, forAllPage = false }) 
 
 const styles = StyleSheet.create({
   header: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: "10%", // top 10% of the page
     width: "100%",
-    justifyContent: "flex-end",
     paddingBottom: 8,
   },
 });
