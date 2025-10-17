@@ -16,12 +16,13 @@ type GridProps = {
 };
 
 export const Grid: React.FC<GridProps> = ({ children, columns = 2, gap = 8, header, items, allowBreak = false }) => {
+  console.log(items, "from parent")
   const data = usePdfData<any>();
   const resolvedChildren = typeof children === "function" ? children(data) : children;
   const widthPercent = `${100 / columns}%`;
   const childArray = React.Children.toArray(resolvedChildren);
   return (
-    <View wrap={allowBreak ? undefined : (false as any)}>
+    <View style={{marginBottom:10}} wrap={allowBreak ? undefined : (false as any)}>
       {header ? <Text style={styles.header}>{header}</Text> : null}
       <View style={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
         {items && items.length > 0

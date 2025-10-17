@@ -27,7 +27,7 @@ type SummaryItem = {
   value: string;
 };
 
-// ---------- Utility: Build summary dynamically ----------
+// ---------- Build summary dynamically ----------
 function buildSummary(labelKeys: LabelKey[], labelValues: Record<string, string | number>): SummaryItem[] {
   return labelKeys
     .filter((lk) => lk.keyLabel in labelValues) // only include keys present in labelValues
@@ -37,9 +37,9 @@ function buildSummary(labelKeys: LabelKey[], labelValues: Record<string, string 
     }));
 }
 
-// ---------- Component ----------
+// ---------- Main PDF Component ----------
 export default function ReportsPdfPreview() {
-  // 1️⃣ Field mapping (future-proof: add any new field here)
+  // Staff summary mapping
   const labelKey: LabelKey[] = [
     { keyLabel: "date", keyTitle: "Date" },
     { keyLabel: "country", keyTitle: "Country" },
@@ -56,7 +56,6 @@ export default function ReportsPdfPreview() {
     { keyLabel: "remainingBudget", keyTitle: "Remaining Budget" },
   ];
 
-  // 2️⃣ Dynamic event data (from API or props)
   const labelValue: Record<string, string | number> = {
     date: "December 6, 2024",
     country: "India",
@@ -73,8 +72,34 @@ export default function ReportsPdfPreview() {
     remainingBudget: "46.99",
   };
 
-  // 3️⃣ Build staff summary dynamically
   const staffSummary = buildSummary(labelKey, labelValue);
+
+  // Dynamic tables from backend
+  const productsDataFromAPI = [
+    { Name: "Tennis Racket", Category: "Equipment", Sold: 12, Revenue: 1800 },
+    { Name: "Water Bottle", Category: "Accessories", Sold: 30, Revenue: 450 },
+    { Name: "Grip Tape", Category: "Accessories", Sold: 22, Revenue: 176 },
+  ];
+
+  const servicesDataFromAPI = [
+    { Item: "Venue", Quantity: 2, Estimation: "$5,000", ActualCost: "$4,600" },
+    { Item: "Sound", Quantity: 1, Estimation: "$2,000", ActualCost: "$1,900" },
+  ];
+
+  const employeesDataFromAPI = [
+    { Sno: 1, name: "Vijay Antony", Quantity: 2, Estimation: "$5,000", ActualCost: "$4,600" },
+    { Sno: 2, name: "Ravi Teja", Quantity: 1, Estimation: "$2,000", ActualCost: "$1,900" },
+    { Sno: 2, name: "Kumar", Quantity: 1, Estimation: "$2,000", ActualCost: "$1,900" },
+    { Sno: 2, name: "Saravanan", Quantity: 1, Estimation: "$2,000", ActualCost: "$1,900" },
+    { Sno: 2, name: "Prabhu", Quantity: 1, Estimation: "$2,000", ActualCost: "$1,900" },
+    { Sno: 2, name: "Karthik", Quantity: 1, Estimation: "$2,000", ActualCost: "$1,900" },
+  ];
+
+  const chartData = [
+    { label: "Tennis", value: 234 },
+    { label: "Basketball", value: 189 },
+    { label: "Badminton", value: 312 },
+  ];
 
   return (
     <div style={{ height: "100vh", width: "100%" }}>
@@ -89,30 +114,42 @@ export default function ReportsPdfPreview() {
           {/* Body */}
           <Body reserveBottom={60}>
             <Div>
-              {/* Dynamic Staff Summary Grid */}
+              {/* Staff Summary */}
               <Row>
                 <Grid
                   header="Vijay Antony Live - Chennai"
-                  columns={3} // ✅ Use 1 column to ensure all items render
+                  columns={3}
                   gap={8}
                   items={staffSummary}
                   allowBreak
                 />
               </Row>
 
-              {/* Products Table */}
+              {/* Dynamic Products Table */}
               <Row>
-                <Div padding={8}>
-                  <Table
-                    title="Products"
+                <Div>
+                  <Table 
+                    title="Products" 
                     showTitle
                     allowBreak
                     repeatHeader
-                    data={[
-                      { product: "Tennis Racket", category: "Equipment", sold: "12", revenue: "1800" },
-                      { product: "Water Bottle", category: "Accessories", sold: "30", revenue: "450" },
-                      { product: "Grip Tape", category: "Accessories", sold: "22", revenue: "176" },
-                    ]}
+                    serialNo={true}
+                    data={productsDataFromAPI}
+                  />
+                </Div>
+              </Row>
+
+              {/* Dynamic Services Table */}
+              <Row>
+                <Div>
+                  <Table 
+                    title="Services" 
+                    showTitle
+                    allowBreak
+                    repeatHeader
+                    serialNo={true}
+                    serialNoLabel="S.no"
+                    data={servicesDataFromAPI}
                   />
                 </Div>
               </Row>
@@ -120,46 +157,20 @@ export default function ReportsPdfPreview() {
               {/* Chart */}
               <Row>
                 <Div padding={8}>
-                  <PdfBarChart
-                    title="Bookings by Sport"
-                    data={[
-                      { label: "Tennis", value: 234 },
-                      { label: "Basketball", value: 189 },
-                      { label: "Badminton", value: 312 },
-                      { label: "Swim", value: 156 },
-                    ]}
-                  />
+                  <PdfBarChart title="Bookings by Sport" data={chartData} />
                 </Div>
               </Row>
 
-              {/* Services Table */}
+              {/* Dynamic Employees Table */}
               <Row>
-                <Div padding={8}>
-                  <Table
-                    title="Service 1 - 25.00%"
+                <Div>
+                  <Table 
+                    title="Employees" 
                     showTitle
                     allowBreak
                     repeatHeader
-                    data={[
-                      { sno: 1, item: "Test", quantity: 100, estimation: "$3,000", actualCost: "$2,500", difference: "$500", paid: "$3,000", due: "$0", profit: "$500" },
-                      { sno: "Total", quantity: 100, estimation: "$3,000", actualCost: "$2,500", difference: "$500", paid: "$3,000", due: "$0", profit: "$500" },
-                    ]}
-                  />
-                </Div>
-              </Row>
-
-              {/* Service Total */}
-              <Row>
-                <Div padding={8}>
-                  <Table
-                    title="Service Total"
-                    showTitle
-                    allowBreak
-                    repeatHeader
-                    compact
-                    data={[
-                      { sno: "Grand Total", quantity: 102, estimation: "$8,000", actualCost: "$7,100", difference: "$900", paid: "$7,600", due: "$0", profit: "$900" },
-                    ]}
+                    serialNo={false}
+                    data={employeesDataFromAPI}
                   />
                 </Div>
               </Row>
