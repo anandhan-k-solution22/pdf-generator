@@ -16,22 +16,65 @@ import {
   Footer,
 } from "s22";
 
+// ---------- Types ----------
+type LabelKey = {
+  keyLabel: string; // field key
+  keyTitle: string; // display title
+};
+
+type SummaryItem = {
+  label: string;
+  value: string;
+};
+
+// ---------- Utility: Build summary dynamically ----------
+function buildSummary(labelKeys: LabelKey[], labelValues: Record<string, string | number>): SummaryItem[] {
+  return labelKeys
+    .filter((lk) => lk.keyLabel in labelValues) // only include keys present in labelValues
+    .map((lk) => ({
+      label: lk.keyTitle,
+      value: String(labelValues[lk.keyLabel]),
+    }));
+}
+
+// ---------- Component ----------
 export default function ReportsPdfPreview() {
-  const staffSummary = [
-    { label: "Date", value: "December 6, 2024" },
-    { label: "Country", value: "India" },
-    { label: "State", value: "Karnataka" },
-    { label: "City", value: "Chennai" },
-    { label: "Venue", value: "Sir Mutha Venkatasubba Rao Concert Hall" },
-    { label: "Event Category", value: "Music Concert" },
-    { label: "Allocated Budget", value: "10000" },
-    { label: "Paid", value: "15300" },
-    { label: "Total Spent", value: "5300" },
-    { label: "Balance", value: "4700" },
-    { label: "Due", value: "0" },
-    { label: "Budget Utilized", value: "53.0" },
-    { label: "Remaining Budget", value: "46.99" },
+  // 1️⃣ Field mapping (future-proof: add any new field here)
+  const labelKey: LabelKey[] = [
+    { keyLabel: "date", keyTitle: "Date" },
+    { keyLabel: "country", keyTitle: "Country" },
+    { keyLabel: "state", keyTitle: "State" },
+    { keyLabel: "city", keyTitle: "City" },
+    { keyLabel: "venue", keyTitle: "Venue" },
+    { keyLabel: "eventCategory", keyTitle: "Event Category" },
+    { keyLabel: "allocatedBudget", keyTitle: "Allocated Budget" },
+    { keyLabel: "paid", keyTitle: "Paid" },
+    { keyLabel: "totalSpent", keyTitle: "Total Spent" },
+    { keyLabel: "balance", keyTitle: "Balance" },
+    { keyLabel: "due", keyTitle: "Due" },
+    { keyLabel: "budgetUtilized", keyTitle: "Budget Utilized" },
+    { keyLabel: "remainingBudget", keyTitle: "Remaining Budget" },
   ];
+
+  // 2️⃣ Dynamic event data (from API or props)
+  const labelValue: Record<string, string | number> = {
+    date: "December 6, 2024",
+    country: "India",
+    state: "Karnataka",
+    city: "Chennai",
+    venue: "Sir Mutha Venkatasubba Rao Concert Hall",
+    eventCategory: "Music Concert",
+    allocatedBudget: "10000",
+    paid: "15300",
+    totalSpent: "5300",
+    balance: "4700",
+    due: "0",
+    budgetUtilized: "53.0",
+    remainingBudget: "46.99",
+  };
+
+  // 3️⃣ Build staff summary dynamically
+  const staffSummary = buildSummary(labelKey, labelValue);
 
   return (
     <div style={{ height: "100vh", width: "100%" }}>
@@ -46,13 +89,14 @@ export default function ReportsPdfPreview() {
           {/* Body */}
           <Body reserveBottom={60}>
             <Div>
-              {/* Staff Summary Grid */}
+              {/* Dynamic Staff Summary Grid */}
               <Row>
                 <Grid
                   header="Vijay Antony Live - Chennai"
-                  columns={3}
+                  columns={3} // ✅ Use 1 column to ensure all items render
                   gap={8}
                   items={staffSummary}
+                  allowBreak
                 />
               </Row>
 
@@ -88,7 +132,7 @@ export default function ReportsPdfPreview() {
                 </Div>
               </Row>
 
-              {/* Service 1 Table */}
+              {/* Services Table */}
               <Row>
                 <Div padding={8}>
                   <Table
@@ -97,41 +141,14 @@ export default function ReportsPdfPreview() {
                     allowBreak
                     repeatHeader
                     data={[
-                      { sno: 1, item: "Test", quantity: 100, estimation: "$ 3,000", actualCost: "$ 2,500", difference: "$ 500", paid: "$ 3,000", due: "$ 0", profit: "$ 500" },
-                      { sno: 2, item: "Test", quantity: 100, estimation: "$ 3,000", actualCost: "$ 2,500", difference: "$ 500", paid: "$ 3,000", due: "$ 0", profit: "$ 500" },
-                      { sno: 3, item: "Test", quantity: 100, estimation: "$ 3,000", actualCost: "$ 2,500", difference: "$ 500", paid: "$ 3,000", due: "$ 0", profit: "$ 500" },
-                      { sno: 4, item: "Test", quantity: 100, estimation: "$ 3,000", actualCost: "$ 2,500", difference: "$ 500", paid: "$ 3,000", due: "$ 0", profit: "$ 500" },
-                      { sno: 5, item: "Test", quantity: 100, estimation: "$ 3,000", actualCost: "$ 2,500", difference: "$ 500", paid: "$ 3,000", due: "$ 0", profit: "$ 500" },
-                      { sno: 6, item: "Test", quantity: 100, estimation: "$ 3,000", actualCost: "$ 2,500", difference: "$ 500", paid: "$ 3,000", due: "$ 0", profit: "$ 500" },
-                      { sno: 7, item: "Test", quantity: 100, estimation: "$ 3,000", actualCost: "$ 2,500", difference: "$ 500", paid: "$ 3,000", due: "$ 0", profit: "$ 500" },
-                      { sno: 8, item: "Test", quantity: 100, estimation: "$ 3,000", actualCost: "$ 2,500", difference: "$ 500", paid: "$ 3,000", due: "$ 0", profit: "$ 500" },
-                      { sno: "Total", quantity: 800, estimation: "$ 24,000", actualCost: "$ 20,000", difference: "$ 4,000", paid: "$ 24,000", due: "$ 0", profit: "$ 4,000" },
+                      { sno: 1, item: "Test", quantity: 100, estimation: "$3,000", actualCost: "$2,500", difference: "$500", paid: "$3,000", due: "$0", profit: "$500" },
+                      { sno: "Total", quantity: 100, estimation: "$3,000", actualCost: "$2,500", difference: "$500", paid: "$3,000", due: "$0", profit: "$500" },
                     ]}
                   />
                 </Div>
               </Row>
 
-              {/* Service 2 Table */}
-              <Row>
-                <Div padding={8}>
-                  <Table
-                    title="Service 2 - 15.00%"
-                    showTitle
-                    allowBreak
-                    repeatHeader
-                    data={[
-                      { sno: 1, item: "Venue", quantity: 2, estimation: "$ 5,000", actualCost: "$ 4,600", difference: "$ 400", paid: "$ 4,600", due: "$ 0", profit: "$ 400" },
-                      { sno: 2, item: "Sound", quantity: 1, estimation: "$ 2,000", actualCost: "$ 1,900", difference: "$ 100", paid: "$ 1,900", due: "$ 0", profit: "$ 100" },
-                      { sno: 3, item: "Lighting", quantity: 1, estimation: "$ 1,500", actualCost: "$ 1,400", difference: "$ 100", paid: "$ 1,400", due: "$ 0", profit: "$ 100" },
-                      { sno: 4, item: "Security", quantity: 4, estimation: "$ 800", actualCost: "$ 760", difference: "$ 40", paid: "$ 760", due: "$ 0", profit: "$ 40" },
-                      { sno: 5, item: "Misc", quantity: 3, estimation: "$ 600", actualCost: "$ 540", difference: "$ 60", paid: "$ 540", due: "$ 0", profit: "$ 60" },
-                      { sno: "Total", quantity: 11, estimation: "$ 9,900", actualCost: "$ 9,200", difference: "$ 700", paid: "$ 9,200", due: "$ 0", profit: "$ 700" },
-                    ]}
-                  />
-                </Div>
-              </Row>
-
-              {/* Service Total Table */}
+              {/* Service Total */}
               <Row>
                 <Div padding={8}>
                   <Table
@@ -141,7 +158,7 @@ export default function ReportsPdfPreview() {
                     repeatHeader
                     compact
                     data={[
-                      { sno: "Grand Total", quantity: 102, estimation: "$ 8,000", actualCost: "$ 7,100", difference: "$ 900", paid: "$ 7,600", due: "$ 0", profit: "$ 900" },
+                      { sno: "Grand Total", quantity: 102, estimation: "$8,000", actualCost: "$7,100", difference: "$900", paid: "$7,600", due: "$0", profit: "$900" },
                     ]}
                   />
                 </Div>
